@@ -14,24 +14,25 @@ services:
       - TZ=Asia/Bangkok
     volumes:
       - n8n_data:/home/node/.n8n
-  ngrok:
-    image: wernight/ngrok
-    restart: unless-stopped
-    environment:
-      # IMPORTANT: Replace with your actual ngrok authtoken from ngrok.com
-      # It's recommended to put this in a .env file (see next step).
-      - NGROK_AUTH=${NGROK_AUTH}
-      # Optional: Specify your ngrok region (e.g., us, eu, ap, au, sa, jp, in)
-      # - NGROK_REGION=ap
-    command:
-      # This command tells ngrok to tunnel HTTP traffic to the 'n8n' service
-      # on port 5678 within the Docker network.
-      - 'http'
-      - 'n8n:5678'
     networks:
       - n8n_network
+  ngrok:
+    image: ngrok/ngrok
+    restart: unless-stopped
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTH}
+    command: http n8n:5678
+    networks:
+      - n8n_network
+    volumes:
+      - ngrok_config:/home/ngrok/.config/ngrok
 
 volumes:
   n8n_data:
     external: true
+  ngrok_config:
+
+networks:
+  n8n_network:
+    driver: bridge
 
